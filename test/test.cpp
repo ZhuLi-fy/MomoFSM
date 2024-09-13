@@ -28,15 +28,15 @@ enum Single{test,aa,bb,cc};
 
 int main(){
     MomoFSM fsm;
-    fsm.AddState(new A,AState,Relation{.single = test,.stateName = BState},
-                 Relation{.single = aa,.stateName = AState});
-    fsm.AddState(new B,BState,Relation{.single = test,.stateName = AState},
-                 Relation{.single = bb,.stateName = AState},
-                 Relation{.single = cc,.stateName = BState});
+    fsm.AddState(new A,AState,Relation{.event = test,.stateName = BState},
+                 Relation{.event = aa,.stateName = AState});
+    fsm.AddState(new B,BState,Relation{.event = test,.stateName = AState},
+                 Relation{.event = bb,.stateName = AState},
+                 Relation{.event = cc,.stateName = BState});
     fsm.setStartState(AState);
-    fsm.sendSingle(test);
-    fsm.sendSingle(cc);
-    fsm.sendSingle(aa);
-    fsm.sendSingle(test);
+    fsm.sendEvent(test);
+    fsm.sendEvent(cc);
+    fsm.sendEvent(aa);
+    fsm.sendEvent(test);
     return 1;
 }
