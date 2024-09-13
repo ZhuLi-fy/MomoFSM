@@ -10,9 +10,36 @@
 namespace momo {
     static int increment = 10;
     enum State{OK,ERROR_NOTFINDSINGLE,ERROR_NOTFINDSTATE,ERROR_MALLOC,ERROR_EXISTSTATE};
-    typedef struct {int single;int stateName;}Relation;
+    typedef struct {int event;int stateName;}Relation;
 
-    class MomoState;
+    class MomoFSM;
+    class MomoState{
+    protected:
+        int StateName;
+        int *singleList = nullptr;
+        int *stateList = nullptr;
+        int usedSize = 0;
+        int size = 0;
+    public:
+        /// 进入状态
+        /// \param fsm
+        virtual void entry(MomoFSM& fsm){};
+        /// 退出状态
+        /// \param fsm
+        virtual void exit(MomoFSM& fsm){};
+        /// 方便拓展预留的运行函数
+        /// \param fsm
+        virtual void task(MomoFSM& fsm){};
+
+        int getStateName() const{return StateName;}
+        /// 添加转换关系
+        /// \param relation
+        /// \return
+        State AddRelation(Relation relation);
+        int* findSingleReturnState(int event);
+        ~MomoState();
+    };
+
     class MomoFSM {
     protected:
         MomoState* curState = nullptr;
@@ -21,16 +48,23 @@ namespace momo {
         int usedSize = 0;
         int size = 0;
     public:
-        [[nodiscard]] int currentState() const{if(curState) return 0;}
+        /// 返回当前状态
+        /// \return
+        int currentState();
 
+        /// 为状态机添加状态
+        /// \tparam Args
+        /// \param state 状态对象
+        /// \param name 状态名称
+        /// \param args 可变数量的转换关系，请使用Relation结构体
+        /// \return
         template<typename ... Args>
         State AddState(MomoState* state,int name,Args ... args){
+            for (int i = 0; i < usedSize; ++i) {
+                if(stateNameMap[i]==name)
+                    return ERROR_EXISTSTATE;
+            }
             if(usedSize>=size){
-                for (int i = 0; i < usedSize; ++i) {
-                    if(stateNameMap[i]==name)
-                        return ERROR_EXISTSTATE;
-                }
-
                 auto temp = new MomoState*[size+increment];
                 assert(temp != nullptr);
                 memcpy(temp,stateList,size);
@@ -52,26 +86,17 @@ namespace momo {
 
             return OK;
         }
+        /// 设置开始状态
+        /// \param state
+        /// \return
         State setStartState(int state);
-        State sendSingle(int single);
+        /// 发送事件
+        /// \param event
+        /// \return
+        State sendEvent(int event);
         ~MomoFSM();
     };
 
-    class MomoState{
-    protected:
-        int StateName;
-        int *singleList = nullptr;
-        int *stateList = nullptr;
-        int usedSize = 0;
-        int size = 0;
-    public:
-        virtual void entry(MomoFSM& fsm){};
-        virtual void exit(MomoFSM& fsm){};
-        int getStateName(){return StateName;}
-        State AddRelation(Relation relation);
-        int* findSingleReturnState(int single);
-        ~MomoState();
-    };
 }
 
 #endif //MOMOFSM_MOMOFSM_H

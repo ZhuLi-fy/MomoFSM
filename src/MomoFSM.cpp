@@ -21,15 +21,15 @@ State MomoState::AddRelation(Relation relation) {
         stateList = temp;
         size+=increment;
     }
-    singleList[usedSize] = relation.single;
+    singleList[usedSize] = relation.event;
     stateList[usedSize] = relation.stateName;
     usedSize++;
     return OK;
 }
 
-int *MomoState::findSingleReturnState(int single) {
+int *MomoState::findSingleReturnState(int event) {
     for (int i = 0; i < usedSize; ++i) {
-        if(singleList[i]==single)
+        if(singleList[i]==event)
             return stateList+i;
     }
     return nullptr;
@@ -53,8 +53,8 @@ State MomoFSM::setStartState(int state) {
     return ERROR_NOTFINDSTATE;
 }
 
-State MomoFSM::sendSingle(int single) {
-    int* temp = curState->findSingleReturnState(single);
+State MomoFSM::sendEvent(int event) {
+    int* temp = curState->findSingleReturnState(event);
     if(temp == nullptr)
         return ERROR_NOTFINDSINGLE;
     int aimStateName = *temp;
@@ -78,4 +78,10 @@ MomoFSM::~MomoFSM() {
     curState = nullptr;
     stateList = nullptr;
     stateNameMap = nullptr;
+}
+
+int MomoFSM::currentState() {
+    if(curState!= nullptr)
+        return curState->getStateName();
+    return 0;
 }
