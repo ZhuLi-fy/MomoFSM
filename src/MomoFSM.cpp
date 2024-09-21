@@ -10,9 +10,9 @@ State MomoState::AddRelation(Relation relation) {
     if(usedSize>=size){
         int *temp = new int[size+increment];
         assert(temp != nullptr);
-        memcpy(temp,singleList,size);
-        delete[] singleList;
-        singleList = temp;
+        memcpy(temp,eventList,size);
+        delete[] eventList;
+        eventList = temp;
 
         temp = new int[size+increment];
         assert(temp != nullptr);
@@ -21,25 +21,37 @@ State MomoState::AddRelation(Relation relation) {
         stateList = temp;
         size+=increment;
     }
-    singleList[usedSize] = relation.event;
+    eventList[usedSize] = relation.event;
     stateList[usedSize] = relation.stateName;
     usedSize++;
     return OK;
 }
 
-int *MomoState::findSingleReturnState(int event) {
+int *MomoState::findEventReturnState(int event) {
     for (int i = 0; i < usedSize; ++i) {
-        if(singleList[i]==event)
+        if(eventList[i]==event)
             return stateList+i;
     }
     return nullptr;
 }
 
 MomoState::~MomoState() {
-    delete[] singleList;
+    delete[] eventList;
     delete[] stateList;
-    singleList = nullptr;
+    eventList = nullptr;
     stateList = nullptr;
+}
+
+using namespace std;
+string MomoState::eventToStr(int statesNum, string* events, int eventsNum) {
+    string temp;
+    for (int i = 0; i < usedSize; ++i) {
+        assert(eventList[i] <= eventsNum);
+        assert(stateList[i] <= statesNum);
+        temp.append(to_string(getStateName())+"-->"+ to_string(stateList[i])+":"+events[i]+'\n');
+    }
+
+    return temp;
 }
 
 
@@ -47,6 +59,7 @@ State MomoFSM::setStartState(int state) {
     for (int i = 0; i < usedSize; ++i) {
         if (stateNameMap[i] == state){
             curState = stateList[i];
+            startState = stateList[i];
             return OK;
         }
     }
@@ -54,7 +67,7 @@ State MomoFSM::setStartState(int state) {
 }
 
 State MomoFSM::sendEvent(int event) {
-    int* temp = curState->findSingleReturnState(event);
+    int* temp = curState->findEventReturnState(event);
     if(temp == nullptr)
         return ERROR_NOTFINDSINGLE;
     int aimStateName = *temp;
@@ -84,4 +97,24 @@ int MomoFSM::currentState() {
     if(curState!= nullptr)
         return curState->getStateName();
     return 0;
+}
+
+string MomoFSM::FSMTomdStr(string *states, int statesNum, string *events, int eventNum) {
+    string temp = "```mermaid\nstateDiagram-v2\n";
+    assert(startState != nullptr);
+    assert(stateList != nullptr);
+    assert(stateNameMap != nullptr);
+    assert(usedSize <= statesNum);
+    for (int i = 0; i < usedSize; ++i) {
+        temp.append(to_string(i)+":"+states[i]+'\n');
+    }
+
+    temp.append("[*]-->"+to_string(startState->getStateName())+'\n');
+
+    for (int i = 0; i < usedSize; ++i) {
+        temp.append(stateList[i]->eventToStr(statesNum,events,eventNum));
+    }
+
+    temp.append("```");
+    return temp;
 }

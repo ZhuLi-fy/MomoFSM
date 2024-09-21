@@ -6,6 +6,7 @@
 #define MOMOFSM_MOMOFSM_H
 #include <cassert>
 #include <cstring>
+#include <string>
 
 namespace momo {
     static int increment = 10;
@@ -16,11 +17,12 @@ namespace momo {
     class MomoState{
     protected:
         int StateName;
-        int *singleList = nullptr;
+        int *eventList = nullptr;
         int *stateList = nullptr;
         int usedSize = 0;
         int size = 0;
     public:
+        explicit MomoState(int name){StateName = name;};
         /// 进入状态
         /// \param fsm
         virtual void entry(MomoFSM& fsm){};
@@ -36,12 +38,14 @@ namespace momo {
         /// \param relation
         /// \return
         State AddRelation(Relation relation);
-        int* findSingleReturnState(int event);
+        int* findEventReturnState(int event);
+        std::string eventToStr(int statesNum, std::string* events, int eventsNum);
         ~MomoState();
     };
 
     class MomoFSM {
     protected:
+        MomoState* startState = nullptr;
         MomoState* curState = nullptr;
         MomoState** stateList = nullptr;
         int* stateNameMap = nullptr;
@@ -59,9 +63,9 @@ namespace momo {
         /// \param args 可变数量的转换关系，请使用Relation结构体
         /// \return
         template<typename ... Args>
-        State AddState(MomoState* state,int name,Args ... args){
+        State AddState(MomoState* state,Args ... args){
             for (int i = 0; i < usedSize; ++i) {
-                if(stateNameMap[i]==name)
+                if(stateNameMap[i]==state->getStateName())
                     return ERROR_EXISTSTATE;
             }
             if(usedSize>=size){
@@ -80,7 +84,7 @@ namespace momo {
             }
 
             ((state->AddRelation(args))|...);
-            stateNameMap[usedSize] = name;
+            stateNameMap[usedSize] = state->getStateName();
             stateList[usedSize] = state;
             usedSize++;
 
@@ -94,6 +98,13 @@ namespace momo {
         /// \param event
         /// \return
         State sendEvent(int event);
+        /// 输出转台转换图的markdown
+        /// \param states 状态名称数组
+        /// \param statesNum 状态名称数量
+        /// \param events 事件名称数组
+        /// \param eventNum 事件名称数量
+        /// \return markdown
+        std::string FSMTomdStr(std::string* states,int statesNum,std::string* events,int eventNum);
         ~MomoFSM();
     };
 

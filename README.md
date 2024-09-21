@@ -46,3 +46,34 @@ fsm.sendEvent(test);
 初始状态是不会运行entry函数的。
 ## 多线程中不同状态切换任务
 fsm定义在线程类里，实现MomoState中的task函数，在循环中始终运行fsm.curState->task(fsm);
+## 输出状态转换图
+在定义FSM完成后，可以指定状态名称、事件名称，就可以输出markdown字符串，在支持mermaid的markdown编辑器就能正常显示。
+test.cpp中的示例，可以如下输出：
+```C++
+int stateNum = 5;
+string stateName[stateNum];
+stateName[0]="First";
+stateName[1]="Second";
+
+string eventName[stateNum];
+eventName[0]="test";
+eventName[1]="aa";
+eventName[2]="bb";
+eventName[3]="cc";
+cout<<fsm.FSMTomdStr(stateName,stateNum,eventName,stateNum);
+```
+github是支持mermaid显示的，所以输出结果复制出来会这样展现：
+```mermaid
+stateDiagram-v2
+0:First
+1:Second
+[*]-->0
+0-->1:test
+0-->0:aa
+1-->0:test
+1-->0:aa
+1-->1:bb
+```
+todo  虽然这样更灵活，但有时间了还是研究下直接通过枚举输出吧；
+
+另外考虑过去包含当前状态去输出，但对于这样动态的过程用markdown渲染动画，确实有些叛逆（笑
