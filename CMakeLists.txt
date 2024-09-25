@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_library(${PROJECT_NAME} src/MomoFSM.cpp)
 target_include_directories(${PROJECT_NAME} INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include/MomoFSM>)
 set_target_properties(MomoFSM PROPERTIES PUBLIC_HEADER "include/MomoFSM.h")
 
 include(GNUInstallDirs)
