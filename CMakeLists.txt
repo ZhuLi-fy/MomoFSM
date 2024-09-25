@@ -10,8 +10,21 @@ target_include_directories(${PROJECT_NAME} INTERFACE
 set_target_properties(MomoFSM PROPERTIES PUBLIC_HEADER "include/MomoFSM.h")
 
 include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
+
 set(CONFIG_FILE_PATH lib/cmake/${PROJECT_NAME})
+
+install(
+        TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Targets
+)
+
+install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/MomoFSM/
+        FILES_MATCHING PATTERN "*.h"
+)
+
+include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
         ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
@@ -26,10 +39,6 @@ configure_package_config_file(
         PATH_VARS CMAKE_INSTALL_INCLUDEDIR
 )
 
-install(
-        TARGETS ${PROJECT_NAME}
-        EXPORT ${PROJECT_NAME}Targets
-)
 install(
         EXPORT ${PROJECT_NAME}Targets
         DESTINATION ${CONFIG_FILE_PATH}
