@@ -23,7 +23,7 @@ configure_package_config_file(
         ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in
         ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
         INSTALL_DESTINATION ${CONFIG_FILE_PATH}
-        PATH_VARS CMAKE_INSTALL_INCLUDEDIR)
+        PATH_VARS CMAKE_INSTALL_INCLUDEDIR
 )
 
 install(
